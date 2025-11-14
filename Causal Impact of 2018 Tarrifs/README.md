@@ -40,43 +40,63 @@ We employ **two parallel causal inference strategies** to ensure robust estimate
 ```
 Causal Impact of 2018 Tarrifs/
 │
-├── data_generator.py           # Synthetic data generation
-├── did_analysis.py             # DID implementation
-├── synthetic_control.py        # Synthetic control implementation
-├── main_analysis.py            # Main analysis pipeline
+├── data_generator.py               # Synthetic data generation
+├── did_analysis.py                 # DID implementation
+├── synthetic_control.py            # Synthetic control implementation
+├── main_analysis.py                # Main analysis pipeline (synthetic data)
+├── data_collection_pipeline.py     # Real data collection pipeline
+├── analysis_example.py             # Example analysis workflow
 │
-├── requirements.txt            # Python dependencies
-├── README.md                   # This file
-├── METHODOLOGY_EXPLANATION.md  # Detailed methodology guide
+├── requirements.txt                # Python dependencies
+├── .env.template                   # Template for API keys
+├── README.md                       # This file
+├── METHODOLOGY_EXPLANATION.md      # Detailed methodology guide
+├── DATA_COLLECTION_OVERVIEW.md     # Data collection documentation
+├── DATA_COLLECTION_QUICKSTART.md   # Quick start for data collection
 │
-├── data/                       # Data files
-│   ├── trade_data.csv          # Generated synthetic trade data
-│   ├── domestic_data.csv       # Generated synthetic domestic data
-│   ├── raw/                    # (Optional) Raw data from USA Trade Online
-│   └── clean/                  # (Optional) Cleaned panel data
+├── config/                         # Configuration
+│   └── config.py                   # Project configuration and parameters
 │
-├── models/                     # Modeling framework (extensible)
-│   ├── did_model.py            # DID estimation pipeline
-│   ├── synthetic_control.py    # Synthetic Control implementation
-│   └── artifacts/              # Saved model results
+├── src/                            # Source modules for data collection
+│   ├── collectors/                 # Data collection modules
+│   │   ├── census_collector.py    # USA Trade Online / Census data
+│   │   ├── bls_collector.py       # Bureau of Labor Statistics data
+│   │   ├── fred_collector.py      # Federal Reserve Economic Data
+│   │   └── usitc_collector.py     # USITC DataWeb
+│   ├── transformers/               # Data transformation modules
+│   │   ├── data_cleaner.py        # Data cleaning utilities
+│   │   └── panel_constructor.py   # Panel data construction
+│   └── utils/                      # Utility functions
+│       └── helpers.py              # Helper functions
 │
-├── analysis/                   # Interactive analysis notebooks
-│   ├── parallel_trends.ipynb   # Parallel trends diagnostic tests
-│   └── event_study.ipynb       # Event-study analysis
+├── data/                           # Data files
+│   ├── trade_data.csv              # Generated synthetic trade data
+│   ├── domestic_data.csv           # Generated synthetic domestic data
+│   ├── raw/                        # Raw data from APIs (gitignored)
+│   └── clean/                      # Cleaned panel data (gitignored)
 │
-├── viz/                        # Visualization modules
-│   ├── import_trends.py        # Import trend visualizations
-│   ├── synthetic_vs_actual.py  # Synthetic control plots
-│   └── output/                 # Generated figures
+├── models/                         # Modeling framework (extensible)
+│   ├── did_model.py                # DID estimation pipeline
+│   ├── synthetic_control.py        # Synthetic Control implementation
+│   └── artifacts/                  # Saved model results
 │
-├── reports/                    # Analysis reports
-│   ├── executive_summary.md    # Business-focused findings
-│   └── technical_appendix.md   # Full methodology & results
+├── analysis/                       # Interactive analysis notebooks
+│   ├── parallel_trends.ipynb       # Parallel trends diagnostic tests
+│   └── event_study.ipynb           # Event-study analysis
 │
-└── results/                    # Analysis outputs
+├── viz/                            # Visualization modules
+│   ├── import_trends.py            # Import trend visualizations
+│   ├── synthetic_vs_actual.py      # Synthetic control plots
+│   └── output/                     # Generated figures
+│
+├── reports/                        # Analysis reports
+│   ├── executive_summary.md        # Business-focused findings
+│   └── technical_appendix.md       # Full methodology & results
+│
+└── results/                        # Analysis outputs
     ├── EXECUTIVE_SUMMARY.txt
     ├── did_import_volume_results.txt
-    └── figures/                # All visualizations
+    └── figures/                    # All visualizations
         ├── parallel_trends_*.png
         ├── event_study_*.png
         ├── synthetic_control_*.png
@@ -110,7 +130,26 @@ This will:
 6. Run all validity tests
 7. Generate visualizations and summary report
 
-### Option 2: Use Modeling Framework with Real Data
+### Option 2: Collect Real Data from Government APIs
+
+```bash
+# Set up API keys (one-time setup)
+cp .env.template .env
+# Edit .env and add your API keys:
+# CENSUS_API_KEY=your_key_here
+# FRED_API_KEY=your_key_here
+# BLS_API_KEY=your_key_here
+
+# Run data collection pipeline
+python data_collection_pipeline.py
+```
+
+See [DATA_COLLECTION_QUICKSTART.md](DATA_COLLECTION_QUICKSTART.md) for detailed instructions on:
+- Obtaining API keys
+- Configuring data collection parameters
+- Understanding data sources
+
+### Option 3: Use Modeling Framework with Real Data
 
 #### 1. DID Analysis
 
