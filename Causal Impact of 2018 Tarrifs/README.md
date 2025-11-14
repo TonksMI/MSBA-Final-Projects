@@ -1,4 +1,8 @@
-# Causal Impact of 2018 Steel Tariffs
+# Causal Impact of 2018 Steel Tariffs (Section 232)
+
+**Econometric Analysis Using Difference-in-Differences and Synthetic Control Methods**
+
+---
 
 ## Project Overview
 
@@ -8,6 +12,12 @@ This project provides a comprehensive causal analysis of the Section 232 steel t
 - 💰 **Import and domestic prices**
 - 🏭 **Domestic steel production**
 - 🔄 **Source country substitution patterns**
+
+The project includes both:
+1. **Complete working implementation** with synthetic data and full analysis results
+2. **Modeling framework** for extending the analysis to real-world data from USA Trade Online
+
+---
 
 ## Methodology
 
@@ -22,6 +32,170 @@ We employ **two parallel causal inference strategies** to ensure robust estimate
 - Creates optimal counterfactual using weighted donor pool
 - Matches pre-treatment characteristics perfectly
 - Extends synthetic unit to post-treatment period
+
+---
+
+## Repository Structure
+
+```
+Causal Impact of 2018 Tarrifs/
+│
+├── data_generator.py           # Synthetic data generation
+├── did_analysis.py             # DID implementation
+├── synthetic_control.py        # Synthetic control implementation
+├── main_analysis.py            # Main analysis pipeline
+│
+├── requirements.txt            # Python dependencies
+├── README.md                   # This file
+├── METHODOLOGY_EXPLANATION.md  # Detailed methodology guide
+│
+├── data/                       # Data files
+│   ├── trade_data.csv          # Generated synthetic trade data
+│   ├── domestic_data.csv       # Generated synthetic domestic data
+│   ├── raw/                    # (Optional) Raw data from USA Trade Online
+│   └── clean/                  # (Optional) Cleaned panel data
+│
+├── models/                     # Modeling framework (extensible)
+│   ├── did_model.py            # DID estimation pipeline
+│   ├── synthetic_control.py    # Synthetic Control implementation
+│   └── artifacts/              # Saved model results
+│
+├── analysis/                   # Interactive analysis notebooks
+│   ├── parallel_trends.ipynb   # Parallel trends diagnostic tests
+│   └── event_study.ipynb       # Event-study analysis
+│
+├── viz/                        # Visualization modules
+│   ├── import_trends.py        # Import trend visualizations
+│   ├── synthetic_vs_actual.py  # Synthetic control plots
+│   └── output/                 # Generated figures
+│
+├── reports/                    # Analysis reports
+│   ├── executive_summary.md    # Business-focused findings
+│   └── technical_appendix.md   # Full methodology & results
+│
+└── results/                    # Analysis outputs
+    ├── EXECUTIVE_SUMMARY.txt
+    ├── did_import_volume_results.txt
+    └── figures/                # All visualizations
+        ├── parallel_trends_*.png
+        ├── event_study_*.png
+        ├── synthetic_control_*.png
+        └── domestic_effects.png
+```
+
+---
+
+## Quick Start
+
+### Installation
+
+```bash
+# Install dependencies
+pip install -r requirements.txt
+```
+
+### Option 1: Run Complete Analysis with Synthetic Data
+
+```bash
+# Run complete analysis pipeline
+python main_analysis.py
+```
+
+This will:
+1. Generate synthetic trade data (mimicking real Census/BLS data)
+2. Run DID analysis for import volumes and prices
+3. Estimate domestic production responses
+4. Analyze source country substitution
+5. Perform synthetic control analysis
+6. Run all validity tests
+7. Generate visualizations and summary report
+
+### Option 2: Use Modeling Framework with Real Data
+
+#### 1. DID Analysis
+
+```python
+from models.did_model import DIDModel
+
+# Initialize model
+model = DIDModel(treatment_date="2018-03-23")
+
+# Load cleaned panel data
+model.load_panel('data/clean/steel_panel.parquet')
+
+# Define treated countries (subject to 25% tariff)
+treated_countries = ['China', 'South Korea', 'Japan', 'Germany', 'Taiwan']
+model.create_treatment_indicators(treated_countries=treated_countries)
+
+# Test parallel trends assumption
+model.test_parallel_trends()
+
+# Run baseline DID
+model.run_base_did(outcome_var='log_import_value')
+
+# Cluster standard errors by country
+model.cluster_standard_errors(cluster_var='country')
+
+# Fit event-study specification
+model.fit_event_study(leads=12, lags=24)
+
+# Generate plots
+model.plot_event_study(save_path='viz/output/event_study.png')
+
+# Save all results
+model.save_artifacts('models/artifacts/did')
+```
+
+#### 2. Synthetic Control Analysis
+
+```python
+from models.synthetic_control import SyntheticControl, SyntheticControlConfig
+
+# Configure analysis
+config = SyntheticControlConfig(
+    pre_period_start='2010-01-01',
+    pre_period_end='2017-12-31',
+    post_period_start='2018-03-01',
+    target_country='USA'
+)
+
+# Initialize model
+sc = SyntheticControl(config=config)
+
+# Load data for specific product
+sc.load_data('data/clean/steel_panel.parquet', product='HRC')
+
+# Fit donor weights
+sc.fit_weights(outcome_var='import_value')
+
+# Generate synthetic counterfactual
+sc.generate_synthetic()
+
+# Plot results
+sc.plot_synthetic_vs_actual(product_name='Hot-Rolled Coil')
+
+# Compute treatment effects
+gap_stats = sc.compute_post_treatment_gaps()
+
+# Sensitivity analysis (optional - computationally intensive)
+sc.leave_one_out_sensitivity()
+
+# Save artifacts
+sc.save_artifacts('models/artifacts/synthetic_control', 'HRC')
+```
+
+#### 3. Running Jupyter Notebooks
+
+```bash
+# Start Jupyter
+jupyter notebook
+
+# Open analysis notebooks
+# - analysis/parallel_trends.ipynb
+# - analysis/event_study.ipynb
+```
+
+---
 
 ## Key Features
 
@@ -42,67 +216,14 @@ We employ **two parallel causal inference strategies** to ensure robust estimate
 - Synthetic control comparisons
 - Treatment effect timelines
 
-## Project Structure
+✅ **Extensible Framework**
+- Modular design for easy extension
+- Support for real data from USA Trade Online
+- Jupyter notebooks for interactive analysis
 
-```
-Causal Impact of 2018 Tarrifs/
-│
-├── data_generator.py           # Synthetic data generation
-├── did_analysis.py             # DID implementation
-├── synthetic_control.py        # Synthetic control implementation
-├── main_analysis.py            # Main analysis pipeline
-│
-├── requirements.txt            # Python dependencies
-├── README.md                   # This file
-├── METHODOLOGY_EXPLANATION.md  # Detailed methodology guide
-│
-├── data/                       # Generated data files
-│   ├── trade_data.csv
-│   └── domestic_data.csv
-│
-└── results/                    # Analysis outputs
-    ├── EXECUTIVE_SUMMARY.txt
-    ├── did_import_volume_results.txt
-    └── figures/
-        ├── parallel_trends_*.png
-        ├── event_study_*.png
-        ├── synthetic_control_*.png
-        └── ...
-```
+---
 
-## Quick Start
-
-### Installation
-
-```bash
-# Install dependencies
-pip install -r requirements.txt
-```
-
-### Run Analysis
-
-```bash
-# Run complete analysis pipeline
-python main_analysis.py
-```
-
-This will:
-1. Generate synthetic trade data (mimicking real Census/BLS data)
-2. Run DID analysis for import volumes and prices
-3. Estimate domestic production responses
-4. Analyze source country substitution
-5. Perform synthetic control analysis
-6. Run all validity tests
-7. Generate visualizations and summary report
-
-### Output
-
-Results are saved to `results/` directory:
-- **EXECUTIVE_SUMMARY.txt**: Key findings and effect sizes
-- **Figures**: 10+ professional visualizations
-- **Detailed results**: Model outputs and test statistics
-
-## Key Results
+## Key Results (Synthetic Data Analysis)
 
 ### Import Volume Effect
 - **-35%** reduction in imports from treated countries
@@ -119,6 +240,8 @@ Results are saved to `results/` directory:
 - Partial offset of import reduction
 - Evidence of protection effect
 
+---
+
 ## Validity Tests
 
 All key assumptions validated:
@@ -127,6 +250,8 @@ All key assumptions validated:
 ✅ **Event Study**: No pre-treatment effects, clear post-treatment jump
 ✅ **Placebo Tests**: No spurious effects detected
 ✅ **Pre-Treatment Fit**: Excellent (RMSPE < 10% of mean)
+
+---
 
 ## Methodology Documentation
 
@@ -140,6 +265,8 @@ This document covers:
 - Why each test is necessary
 - How to interpret results
 - Limitations and assumptions
+
+---
 
 ## Technical Details
 
@@ -161,6 +288,30 @@ This document covers:
 - scipy (optimization)
 - pandas, numpy (data manipulation)
 - matplotlib, seaborn (visualization)
+
+---
+
+## Data Sources (for Real Data Extension)
+
+1. **USA Trade Online** (U.S. Census Bureau)
+   - Monthly import data by HS code and country
+   - Coverage: 1989-present
+   - URL: https://usatrade.census.gov/
+   - HS codes: 7208, 7209, 7210, 7211, 7212
+
+2. **USITC DataWeb**
+   - Detailed tariff rates and trade flows
+   - URL: https://dataweb.usitc.gov/
+
+3. **BLS Import Price Indices**
+   - Price data by country of origin
+   - URL: https://www.bls.gov/mxp/
+
+4. **AISI/Federal Reserve**
+   - Domestic steel production data
+   - For control variables and context
+
+---
 
 ## Use Cases
 
@@ -186,6 +337,8 @@ This project demonstrates:
    - Optimization algorithms
    - Professional reporting
 
+---
+
 ## Extensions
 
 Possible extensions:
@@ -193,24 +346,53 @@ Possible extensions:
 - Incorporate product-level heterogeneity
 - Analyze employment effects
 - Estimate general equilibrium effects
-- Compare to actual Census/BLS data
+- Compare synthetic results to actual Census/BLS data
+- Firm-level analysis using confidential Census data (requires RDC access)
+- Welfare analysis: compute consumer/producer surplus changes
+- Machine learning: causal forests for heterogeneous effects
+- Text analysis: scrape company earnings calls for qualitative impact
+
+---
 
 ## References
 
-### Methodology
+### Econometric Methods
+- Abadie, Diamond, & Hainmueller (2010). "Synthetic Control Methods for Comparative Case Studies." *JASA*
 - Angrist & Pischke (2009). *Mostly Harmless Econometrics*
-- Abadie et al. (2010). "Synthetic Control Methods for Comparative Case Studies"
+- Bertrand, Duflo, & Mullainathan (2004). "How Much Should We Trust Differences-in-Differences Estimates?" *QJE*
 - Callaway & Sant'Anna (2021). "Difference-in-Differences with Multiple Time Periods"
+- Cunningham (2021). *Causal Inference: The Mixtape*. Yale University Press
 
-### Policy Context
+### Trade Policy
+- Amiti, Redding, & Weinstein (2019). "The Impact of the 2018 Tariffs on Prices and Welfare." *JEP*
+- Fajgelbaum et al. (2020). "The Return to Protectionism." *QJE*
+- Flaaen & Pierce (2019). "Disentangling the Effects of the 2018-2019 Tariffs." *Federal Reserve*
 - U.S. Department of Commerce. Section 232 Investigation
 - USITC. *Steel Import Monitoring and Analysis*
 - Congressional Research Service. "Section 232 Tariffs on Steel and Aluminum"
+
+---
 
 ## Author
 
 MSBA Final Project - Tariff Causal Analysis
 
+---
+
 ## License
 
-Educational use only.
+This project is for academic/portfolio/educational use only. Data sources retain their original licenses.
+
+---
+
+## Acknowledgments
+
+- **USA Trade Online** for providing comprehensive trade data
+- **USITC** for tariff information
+- Causal inference methods from Abadie, Athey, Imbens, and others
+- *Causal Inference: The Mixtape* by Scott Cunningham for pedagogical clarity
+
+---
+
+**Last Updated:** 2025-11-14
+**Status:** ✅ Implementation Complete - Synthetic Data Analysis Functional | Framework Ready for Real Data Extension
