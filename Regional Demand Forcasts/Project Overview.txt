@@ -1,0 +1,22 @@
+ Regional demand heterogeneity and market expansion analysis
+Business problem: Steel distributors operate regionally—location determines logistics costs, and proximity to customers is competitive advantage. Voortman Where are growth opportunities? Which metros have construction booms or manufacturing concentration that justify new distribution centers? Poor location decisions tie up capital in underperforming facilities.
+The analytical approach: Cluster analysis identifying regional archetypes based on construction activity, manufacturing employment, infrastructure investment, and demographic trends. Build regression models predicting steel demand intensity by metro area using County Business Patterns, construction spending, permits, and industry composition. Create geographic visualizations showing opportunity zones. Time series analysis of regional construction growth rates identifies momentum markets.
+Public datasets:
+
+County Business Patterns (Census, annual establishment/employment data by NAICS and county)
+Regional construction spending and building permits (by metro area)
+Census population growth and demographic data by MSA
+State infrastructure spending trackers
+BLS regional employment in steel-consuming industries (construction, manufacturing)
+USGS state-level steel consumption estimates (when available in annual reports)
+
+Technical capabilities demonstrated:
+
+Predictive modeling: Regression analysis, random forests for nonlinear relationships
+Clustering: K-means or hierarchical clustering for regional segmentation
+Spatial analysis: Geographic visualization, identifying spatial autocorrelation
+Feature engineering: Creating composite demand intensity scores
+Strategic framing: Translating statistical findings into market entry recommendations
+
+Why it appeals to both audiences: Demonstrates strategic thinking beyond pure data science—you're informing capital allocation decisions. External employers see geographic analysis and business insight. Internal leadership gets concrete recommendations: "These 5 metros show strongest growth potential based on leading indicators, here's the ROI analysis."
+Enhancement: Compare your model's predictions to actual locations of competitors (can map from public sources) to validate demand intensity measures.

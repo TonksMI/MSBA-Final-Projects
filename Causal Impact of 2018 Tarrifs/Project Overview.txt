@@ -1,0 +1,22 @@
+Causal impact of Section 232 tariffs on supply chain strategy
+Business problem: The 2018 Section 232 tariffs (25% on steel imports) USGS and their reinstatement in 2025 fundamentally altered steel distribution economics. United States International Trade Commission +2 Critical questions: Did tariffs effectively protect domestic mills while raising costs for distributors? How did import sources shift? What was the true cost impact on different steel products? Understanding these causal effects informs supplier diversification strategy and future trade policy risk management.
+The analytical approach: Use difference-in-differences comparing affected products/countries versus unaffected controls, or synthetic control methods creating counterfactual import patterns absent tariffs. ScienceDirect +2 For DID: compare tariff-affected countries (e.g., China, South Korea) to exempt countries (Canada pre-2025), or compare steel to aluminum (different tariff timing). Test parallel trends assumption, conduct placebo tests on pre-tariff periods.
+Public datasets:
+
+USA Trade Online (Census, monthly import data by HS code and country back to 1989)
+USITC DataWeb for detailed tariff rates and trade flows
+BLS import price indices for steel by country of origin
+Domestic production data from AISI/Federal Reserve
+BLS PPI for competing products to assess price passthrough
+Section 232 investigation reports (USITC) for context
+
+Technical capabilities demonstrated:
+
+Causal inference: Difference-in-differences or synthetic control method
+Econometric rigor: Parallel trends testing, placebo tests, event study specifications scunning
+Policy analysis: Understanding natural experiments created by regulatory changes
+Robustness checks: Multiple specifications, alternative control groups, sensitivity to bandwidth/matching
+Economic interpretation: Distinguish between substitution effects, price effects, and volume effects
+
+Why it appeals to both audiences: Demonstrates understanding that correlation ≠ causation—critical for strategic decisions. External employers see rigorous causal identification strategy (rare in industry portfolios). Internal leadership gets actionable intelligence: "Which import sources became viable post-tariff? What's our risk exposure to future trade policy?"
+Methodological choice: Synthetic control particularly compelling here—transparent weights showing which countries form your counterfactual, visual comparison of actual vs. synthetic import trajectories. ScienceDirect +3 DID works if you can establish parallel trends for treated/control groups.
