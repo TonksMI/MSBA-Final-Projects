@@ -15,7 +15,6 @@ ML for Managers coursework (BUS 659) and independent project.
 | `bus659-midterm-exam.ipynb` | Midterm: ad campaign analysis + graduate salary prediction | Python, pandas, scikit-learn |
 | `bus659-problem-set-2.ipynb` | Classification models on tabular business data | Python, logistic regression, decision trees |
 | `bus659-problem-set-3.ipynb` | Regularization: Lasso, Ridge, Elastic Net | Python, scikit-learn |
-| `redfin-housing-prediction.Rmd` | Orange County house price prediction (Elastic Net / Lasso vs OLS) | R, glmnet |
 
 ---
 
