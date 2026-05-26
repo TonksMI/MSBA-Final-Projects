@@ -1,3 +1,6 @@
 [submodule "computer-vision/PPE-Detection"]
 	path = computer-vision/PPE-Detection
 	url = https://github.com/TonksMI/PPE-Detection.git
+[submodule "nlp-research/LLM-Hallucination"]
+	path = nlp-research/LLM-Hallucination
+	url = https://github.com/TonksMI/LLM-Hulucination.git
