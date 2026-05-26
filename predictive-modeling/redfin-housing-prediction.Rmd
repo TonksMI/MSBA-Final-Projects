@@ -1,0 +1,153 @@
+---
+title: "Redfin Data Analysis"
+author: "Matt Tonks, Josh Lainer, Nate Kennedy, Will Strauss"
+subtitle: MGSC 310 Project
+output:
+  html_document:
+    df_print: paged
+  html_notebook: default
+---
+
+
+```{r setup, include=FALSE}
+library(knitr)
+# As long as you are working in a Rstudio Project file, you shouldn't need to 'hard code' directories like this 
+# change to your own working directory
+# knitr::opts_knit$set(root.dir = 'C:/Users/hersh/Dropbox/Chapman/Teaching/MGSC_310/Fall_2019/problem_sets')
+# setwd('C:/Users/hersh/Dropbox/Chapman/Teaching/MGSC_310/Fall_2019/problem_sets')
+
+# set seed to your own favorite number
+set.seed(1818)
+options(width=70)
+options(scipen=99)
+
+
+# general rchunk code options
+
+# this sets text to small
+opts_chunk$set(tidy.opts=list(width.wrap=50),tidy=TRUE, size = "vsmall")  
+opts_chunk$set(message = FALSE,                                          
+               warning = FALSE,
+               # "caching" stores objects in code chunks and only rewrites if you change things
+               cache = TRUE,                               
+               # automatically downloads dependency files
+               autodep = TRUE,
+               # 
+               cache.comments = FALSE,
+               # 
+               collapse = TRUE,
+               fig.width = 5,  
+               fig.height = 4,
+               fig.align='center')
+rm(list=ls())
+library("readr")
+library("tidyverse")
+library("rsample")
+library('glmnet')
+library('glmnetUtils')
+library('forcats')
+library("data.table")
+library(coefplot)
+```
+
+
+We are going to use Elastic Net and a basic Linear model to model to predict price of a house. We first have to clean the data we are using to be able to use in our models.
+
+```{r}
+OC_Redfin <- read.csv("datasets/OC_Redfin.csv")
+ 
+
+house = OC_Redfin %>% select(PRICE,BEDS,BATHS,SQUARE.FEET,ZIP.OR.POSTAL.CODE,CITY,LATITUDE,LONGITUDE) %>% 
+                          mutate(sqfeet = as.numeric(SQUARE.FEET), ZIP = as.factor(ZIP.OR.POSTAL.CODE),PRICE = as.numeric(PRICE),BEDS = as.numeric(BEDS), BATHS = as.numeric(BATHS),LATITUDE = as.numeric(LATITUDE),LONGITUDE = as.numeric(LONGITUDE), CITY = as.factor(CITY)) %>% 
+                          select(-SQUARE.FEET,-ZIP.OR.POSTAL.CODE) 
+house = house[which(house$PRICE < 2500000),]
+
+
+houses = initial_split(house,.8)
+
+houses_train = training(houses)
+houses_test = testing(houses)
+hist(house$PRICE)
+```
+
+```{r}
+alpha_list = seq(0,1,.1)
+el_fit = cva.glmnet(PRICE ~.,
+         data = houses_train,
+         alpha = alpha_list)
+```
+
+We need to show the minLossPlot for the Elastic Net model. In the plot we see that Lasso Regression is the optimal Task for our Elastic Net model.
+
+```{r}
+minlossplot(el_fit,cv.type = "min")
+
+get_alpha <- function(fit) {
+  alpha <- fit$alpha
+  error <- sapply(fit$modlist, 
+                  function(mod) {min(mod$cvm)})
+  alpha[which.min(error)]
+}
+get_model_params <- function(fit) {
+  alpha <- fit$alpha
+  lambdaMin <- sapply(fit$modlist, `[[`, "lambda.min")
+  lambdaSE <- sapply(fit$modlist, `[[`, "lambda.1se")
+  error <- sapply(fit$modlist, function(mod) {min(mod$cvm)})
+  best <- which.min(error)
+  data.frame(alpha = alpha[best], lambdaMin = lambdaMin[best],
+             lambdaSE = lambdaSE[best], eror = error[best])
+}
+
+best_alpha <- get_alpha(el_fit)
+best_mod <- el_fit$modlist[[which(el_fit$alpha == best_alpha)]]
+```
+
+After that we need to see the plot of the best model
+
+```{r}
+plot(best_mod)
+```
+
+
+To run the best model prediction we could try to fill in the gaps but I am unsure of the best methodology for this. I used na.omit to make sure it works
+
+```{r}
+lasso_mod =  cv.glmnet(PRICE ~.,
+         data = houses_train,
+         alpha = best_alpha)
+train_preds_min = predict(lasso_mod, newdata = houses_train, s = lasso_mod$lambda.min)
+plot(na.omit(houses_train)$PRICE,train_preds_min) +abline(0,1,col="red")
+
+train_na = na.omit(houses_train)$PRICE
+rss <- sum((train_preds_min - train_na) ^ 2)  ## residual sum of squares
+tss <- sum((train_na - mean(train_na)) ^ 2)  ## total sum of squares
+lTrain_rsq <- 1 - rss/tss
+lTrain_rsq
+```
+
+```{r}
+
+coefpath(lasso_mod)
+test_preds_min = predict(lasso_mod, newdata = na.omit(houses_test),s = lasso_mod$lambda.min)
+test_na =  na.omit(houses_test)$PRICE
+rss <- sum((test_preds_min - test_na) ^ 2)  ## residual sum of squares
+tss <- sum((test_na - mean(test_na)) ^ 2)  ## total sum of squares
+ltest_rsq <- 1 - rss/tss
+ltest_rsq
+```
+
+
+```{r}
+
+lin_mod = lm(PRICE ~.,
+             data = houses_train)
+summary(lin_mod)
+
+test_preds1 = predict(lin_mod, newdata = houses_test[!(houses_test$CITY == "Long Beach"|houses_test$CITY == "ALISO VIEJO"| houses_test$ZIP ==90743),],na.action = na.omit)
+p1 = na.omit(houses_test[!(houses_test$CITY == "Long Beach"|houses_test$CITY == "ALISO VIEJO"| houses_test$ZIP ==90743),])
+rss1 <- sum((test_preds1 - p1$PRICE) ^ 2)  ## residual sum of squares
+tss1 <- sum((p1$PRICE - mean(p1$PRICE)) ^ 2)  ## total sum of squares
+ltest_rsq <- 1 - rss1/tss1
+ltest_rsq
+```
+
